@@ -14,8 +14,8 @@ fi
   case $1 in 
     run) {
       [[ "$2" == "-d" || "$2" == "--detach" ]] && {
-        printf "[my-udocker] Running detached container: "
-        UDOCKER_RUN_FLAGS="--detach $D_RUN_FLAGS"
+        echo "[my-udocker] Running detached container"
+        UDOCKER_RUN_FLAGS="--detach $UDOCKER_RUN_FLAGS"
       }
       udocker run
     };;
