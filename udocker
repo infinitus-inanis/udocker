@@ -17,23 +17,24 @@ function __udocker_exec() {
 }
 
 function __udocker_stop() {
+  printf "[udocker] Stopping container: "
   docker stop $UDOCKER_CTR
 }
 
 function __udocker_clean() {
   if (docker inspect $UDOCKER_CTR > /dev/null 2>&1); then
-    echo "Removing udocker container: $UDOCKER_CTR"
+    echo "[udocker] Removing container: $UDOCKER_CTR"
     docker rm -f $UDOCKER_CTR
   fi
   if (docker inspect $UDOCKER_IMG:$UDOCKER_TAG > /dev/null 2>&1); then
-    echo "Removing udocker image: $UDOCKER_IMG:$UDOCKER_TAG"
+    echo "[udocker] Removing image: $UDOCKER_IMG:$UDOCKER_TAG"
     docker rmi $UDOCKER_IMG:$UDOCKER_TAG
   fi
 }
 
 function __udocker_cfg_print() {
-  echo "Using image: $UDOCKER_IMG:$UDOCKER_TAG"
-  echo "Using container: $UDOCKER_CTR"
+  echo "[udocker] Using image: $UDOCKER_IMG:$UDOCKER_TAG"
+  echo "[udocker] Using container: $UDOCKER_CTR"
 }
 
 function __udocker_cfg_validate() {
@@ -43,12 +44,12 @@ function __udocker_cfg_validate() {
 function __udocker_cfg_process() {
   local cfg=$1
   [[ -f $cfg ]] || {
-    echo "Config file doesn't exist at '$cfg'"
+    echo "[udocker] Config file doesn't exist at '$cfg'"
     return 1
   }
   source $cfg
   if ! __udocker_cfg_validate; then
-    echo "Invalid config some variables missing"
+    echo "[udocker] Invalid config some variables are missing"
     return 1
   fi
   __udocker_cfg_print
@@ -65,8 +66,8 @@ function __udocker_cmd_process() {
     stop)       { __udocker_stop;             };;
     clean)      { __udocker_clean;            };;
     *) {
-      echo "Unknown command: $cmd"
-      echo "Try: udocker -h|--help|help"
+      echo "[udocker] Unknown command: $cmd"
+      echo "[udocker] Try: udocker -h|--help|help"
       return 1;
     };;
   esac
@@ -80,9 +81,11 @@ if [[ $# -eq 0 || "$1" == "-h" || "$1" == "--help" || "$1" == "help" ]]; then
 fi
 
 if __udocker_cfg_validate; then
+  echo "[udocker] Config find in environment"
   __udocker_cfg_print
   __udocker_cmd_process "$@"
 else
+  echo "[udocker] Config was not found in environment"
   __udocker_cfg_process "$1"
   __udocker_cmd_process "${@:2}"
 fi
