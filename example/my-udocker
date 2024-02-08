@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# wrapper for udocker that uses 'my-udocker-cfg'
+# alternatively we can 'source my-udocker-cfg' and udocker will recognize defined variables
+
+if ! [ -x "$(command -v udocker)" ]; then
+  echo "Error: udocker wasn't installed." >&2
+  exit 1
+fi
+
+udocker my-udocker-cfg "$@"
