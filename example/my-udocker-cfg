@@ -1,9 +1,10 @@
 #!/bin/bash
+# we use 'export' here so variables can be used in sub-shells
 
 #-vars required for udocker
-UDOCKER_IMG="my-image-name"
-UDOCKER_TAG="my-image-tag"
-UDOCKER_CTR="my-container-name"
+export UDOCKER_IMG="my-image-name"
+export UDOCKER_TAG="my-image-tag"
+export UDOCKER_CTR="my-container-name"
 #-
 
 #-vars not used by udocker
@@ -15,7 +16,7 @@ UDOCKER_CTR="my-container-name"
 #-
 
 #-vars optional for udocker
-UDOCKER_BUILD_FLAGS="-f $__my_dockerfile"
-UDOCKER_RUN_FLAGS="-it --rm -d -v $__my_workingdir_src:$__my_workingdir_dst"
-UDOCKER_EXEC_FLAGS="-it"
+export UDOCKER_BUILD_FLAGS="-f $__my_dockerfile"
+export UDOCKER_RUN_FLAGS="-it --rm -v $__my_workingdir_src:$__my_workingdir_dst"
+export UDOCKER_EXEC_FLAGS="-it"
 #-

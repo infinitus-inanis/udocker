@@ -4,8 +4,26 @@
 # alternatively we can 'source my-udocker-cfg' and udocker will recognize defined variables
 
 if ! [ -x "$(command -v udocker)" ]; then
-  echo "Error: udocker wasn't installed." >&2
+  echo "[my-udocker] udocker wasn't installed" >&2
   exit 1
 fi
 
-udocker my-udocker-cfg "$@"
+# run in subshell to not pollute environment with variables
+(source my-udocker-cfg; {
+  # define custom behaviour
+  case $1 in 
+    run) {
+      [[ "$2" == "-d" || "$2" == "--detach" ]] && {
+        printf "[my-udocker] Running detached container: "
+        UDOCKER_RUN_FLAGS="--detach $D_RUN_FLAGS"
+      }
+      udocker run
+    };;
+    sh) {
+      udocker exec sh
+    };;
+    *) {
+      udocker "$@"
+    };;
+  esac
+})
