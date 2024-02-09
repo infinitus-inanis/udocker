@@ -13,10 +13,12 @@ export UDOCKER_CTR="my-container-name"
 # path to directory to mount in container
   __my_workingdir_src="$(pwd)/my-working-directory"
   __my_workingdir_dst="/i-work-here"
+  __my_ssh="$HOME/.ssh"
 #-
 
 #-vars optional for udocker
+export UDOCKER_WRAPPER="my-udocker"
 export UDOCKER_BUILD_FLAGS="-f $__my_dockerfile"
-export UDOCKER_RUN_FLAGS="-it --rm -v $__my_workingdir_src:$__my_workingdir_dst"
+export UDOCKER_RUN_FLAGS="-it --rm -v $__my_workingdir_src:$__my_workingdir_dst -v $__my_ssh:/root/.ssh -w /root"
 export UDOCKER_EXEC_FLAGS="-it"
 #-

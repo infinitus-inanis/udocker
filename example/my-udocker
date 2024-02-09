@@ -2,28 +2,27 @@
 
 # wrapper for udocker that uses 'my-udocker-cfg'
 # alternatively we can 'source my-udocker-cfg' and udocker will recognize defined variables
+function logmsg() { printf "[my-udocker.msg] %s" "$*";     }
+function logerr() { printf "[my-udocker.err] %s" "$*" >&2; }
 
-if ! [ -x "$(command -v udocker)" ]; then
-  echo "[my-udocker] udocker wasn't installed" >&2
+if ! (command -v udocker &> /dev/null) ; then
+  logerr "UDocker wasn't installed\n"
   exit 1
 fi
 
-# run in subshell to not pollute environment with variables
-(source my-udocker-cfg; {
-  # define custom behaviour
-  case $1 in 
-    run) {
-      [[ "$2" == "-d" || "$2" == "--detach" ]] && {
-        echo "[my-udocker] Running detached container"
-        UDOCKER_RUN_FLAGS="--detach $UDOCKER_RUN_FLAGS"
-      }
-      udocker run
-    };;
-    sh) {
-      udocker exec sh
-    };;
-    *) {
-      udocker "$@"
-    };;
-  esac
-})
+source my-udocker-cfg
+case $1 in 
+  run) {
+    [[ "$2" == "-d" || "$2" == "--detach" ]] && {
+      logmsg "Running detached container\n"
+      UDOCKER_RUN_FLAGS="--detach $UDOCKER_RUN_FLAGS"
+    }
+    udocker run bash
+  };;
+  bash) {
+    udocker exec bash
+  };;
+  *) {
+    udocker "$@"
+  };;
+esac

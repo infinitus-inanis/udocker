@@ -1,7 +1,12 @@
 #!/bin/bash
 
+__udocker_name=${UDOCKER_WRAPPER:-udocker}
+
+function logmsg() { printf "[$__udocker_name.msg] $@";     }
+function logerr() { printf "[$__udocker_name.err] $@" >&2; }
+
 function __udocker_help() {
-  echo "udocker [config-path] [command]"
+  echo "Usage: $__udocker_name [config-path] [command]"
 }
 
 function __udocker_build() {
@@ -17,75 +22,58 @@ function __udocker_exec() {
 }
 
 function __udocker_stop() {
-  printf "[udocker] Stopping container: "
+  logmsg "Stopping container: "
   docker stop $UDOCKER_CTR
 }
 
 function __udocker_clean() {
   if (docker inspect $UDOCKER_CTR > /dev/null 2>&1); then
-    echo "[udocker] Removing container: $UDOCKER_CTR"
+    logmsg "Removing container: $UDOCKER_CTR\n"
     docker rm -f $UDOCKER_CTR
   fi
   if (docker inspect $UDOCKER_IMG:$UDOCKER_TAG > /dev/null 2>&1); then
-    echo "[udocker] Removing image: $UDOCKER_IMG:$UDOCKER_TAG"
+    logmsg "Removing image: $UDOCKER_IMG:$UDOCKER_TAG\n"
     docker rmi $UDOCKER_IMG:$UDOCKER_TAG
   fi
-}
-
-function __udocker_cfg_print() {
-  echo "[udocker] Using image: $UDOCKER_IMG:$UDOCKER_TAG"
-  echo "[udocker] Using container: $UDOCKER_CTR"
-}
-
-function __udocker_cfg_validate() {
-  [[ -n "$UDOCKER_IMG" && -n "$UDOCKER_CTR" && -n "$UDOCKER_TAG" ]]
-}
-
-function __udocker_cfg_process() {
-  local cfg=$1
-  [[ -f $cfg ]] || {
-    echo "[udocker] Config file doesn't exist at '$cfg'"
-    return 1
-  }
-  source $cfg
-  if ! __udocker_cfg_validate; then
-    echo "[udocker] Invalid config some variables are missing"
-    return 1
-  fi
-  __udocker_cfg_print
-  return 0
 }
 
 function __udocker_cmd_process() {
   local cmd=$1
   local arg=${@:2}
   case $cmd in
-    build)      { __udocker_build;            };;
-    run)        { __udocker_run "$arg";       };;
-    exec)       { __udocker_exec "$arg";      };;
-    stop)       { __udocker_stop;             };;
-    clean)      { __udocker_clean;            };;
+    build)  { __udocker_build;        };;
+    run)    { __udocker_run "$arg";   };;
+    exec)   { __udocker_exec "$arg";  };;
+    stop)   { __udocker_stop;         };;
+    clean)  { __udocker_clean;        };;
     *) {
-      echo "[udocker] Unknown command: $cmd"
-      echo "[udocker] Try: udocker -h|--help|help"
+      logerr "Unknown command: $cmd\n"
+      logerr "Try: $__udocker_name -h|--help|help\n"
       return 1;
     };;
   esac
 }
 
 set -e
-
 if [[ $# -eq 0 || "$1" == "-h" || "$1" == "--help" || "$1" == "help" ]]; then
   __udocker_help
   exit 1
 fi
 
-if __udocker_cfg_validate; then
-  echo "[udocker] Config find in environment"
-  __udocker_cfg_print
-  __udocker_cmd_process "$@"
-else
-  echo "[udocker] Config was not found in environment"
-  __udocker_cfg_process "$1"
-  __udocker_cmd_process "${@:2}"
+if [ -z "$UDOCKER_IMG" ]; then
+  logerr "Couldn't proceed. UDOCKER_IMG variable is required\n"
+  exit 1
 fi
+if [ -z "$UDOCKER_TAG" ]; then
+  logerr "Couldn't proceed. UDOCKER_TAG variable is required\n"
+  exit 1
+fi
+if [ -z "$UDOCKER_CTR" ]; then
+  logerr "Couldn't proceed. UDOCKER_CTR variable is required\n"
+  exit 1
+fi
+
+logmsg "Using image: $UDOCKER_IMG:$UDOCKER_TAG\n"
+logmsg "Using container: $UDOCKER_CTR\n"
+
+__udocker_cmd_process "$@"
