@@ -11,22 +11,22 @@ function __udocker_help() {
   echo "Simple wrapper for docker that allows to work with single image and single container."
   echo "UDocker uses environment variables to work. (see: udocker-cfg)"
   echo "  Required:"
-  echo "    UDOCKER_IMAGE         name of docker image to build. used in conjunction with UDOCKER_TAG"
-  echo "    UDOCKER_TAG           tag of docker container to build. used in conjunction with UDOCKER_IMAGE"
-  echo "    UDOCKER_CONTAINER     name of docker container to run"
+  echo "    UDOCKER_IMAGE         name of docker image to build (used in conjunction with UDOCKER_TAG)"
+  echo "    UDOCKER_TAG           tag of docker container to build (used in conjunction with UDOCKER_IMAGE)"
+  echo "    UDOCKER_CONTAINER     name of docker container to run or exec"
   echo "  Optional:"
-  echo "    UDOCKER_NAME          name of application. used in logs and help. (tip: use this for custom wrappers)"
+  echo "    UDOCKER_NAME          name of application (used for logs and help)"
   echo "    UDOCKER_BUILD_OPTS    options passed to 'build' command (see: docker build --help)"
   echo "    UDOCKER_RUN_OPTS      options passed to 'run' command (see: docker run --help)"
   echo "    UDOCKER_EXEC_OPTS     options passed to 'exec' command (see: docker exec --help)"
   echo ""
   echo "Commands: "
-  echo "  help      display this help text"
-  echo "  build     executes 'docker build \$UDOCKER_BUILD_OPTS -t \$UDOCKER_IMAGE:\$UDOCKER_TAG .'"
-  echo "  run       executes 'docker run \$UDOCKER_RUN_OPTS --name \$UDOCKER_CONTAINER \$UDOCKER_IMAGE:\$UDOCKER_TAG \$@'"
-  echo "  exec      executes 'docker exec \$UDOCKER_EXEC_OPTS \$UDOCKER_CONTAINER \$@'"
-  echo "  stop      executes 'docker stop \$UDOCKER_CONTAINER'"
-  echo "  clean     forcefully removes container \$UROCKER_CONTAINER and image \$UDOCKER_IMAGE:\$UDOCKER_TAG"
+  echo "  help      print help text"
+  echo "  build     execute 'docker build \$UDOCKER_BUILD_OPTS -t \$UDOCKER_IMAGE:\$UDOCKER_TAG .'"
+  echo "  run       execute 'docker run \$UDOCKER_RUN_OPTS --name \$UDOCKER_CONTAINER \$UDOCKER_IMAGE:\$UDOCKER_TAG \$@'"
+  echo "  exec      execute 'docker exec \$UDOCKER_EXEC_OPTS \$UDOCKER_CONTAINER \$@'"
+  echo "  stop      execute 'docker stop \$UDOCKER_CONTAINER'"
+  echo "  clean     forcefully remove container \$UROCKER_CONTAINER and image \$UDOCKER_IMAGE:\$UDOCKER_TAG"
 }
 
 function __udocker_build() {
@@ -75,13 +75,13 @@ function __udocker_cmd_process() {
 
 set -e
 
-if ! (command -v docker &> /dev/null); then
-  logerr "Docker wasn't installed\n"
+if [[ $# -eq 0 || "$1" == "help" ]]; then
+  __udocker_help
   exit 1
 fi
 
-if [[ $# -eq 0 || "$1" == "help" ]]; then
-  __udocker_help
+if ! (command -v docker &> /dev/null); then
+  logerr "Docker wasn't installed\n"
   exit 1
 fi
 
