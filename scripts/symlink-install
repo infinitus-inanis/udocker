@@ -1,6 +1,0 @@
-#!/bin/bash
-
-udocker_path=$(realpath "$(pwd)/../udocker")
-install_path="/usr/bin/udocker"
-
-ln -s "$udocker_path" "$install_path"
