@@ -1,24 +1,15 @@
 #!/bin/bash
-# we use 'export' here so variables can be used in sub-shells
 
-#-vars required for udocker
-export UDOCKER_IMG="my-image-name"
+export UDOCKER_IMAGE="my-image-name"
 export UDOCKER_TAG="my-image-tag"
-export UDOCKER_CTR="my-container-name"
-#-
+export UDOCKER_CONTAINER="my-container-name"
 
-#-vars not used by udocker
-# path to custom dockerfile
-  __my_dockerfile="$(pwd)/my-dockerfile"
-# path to directory to mount in container
-  __my_workingdir_src="$(pwd)/my-working-directory"
-  __my_workingdir_dst="/i-work-here"
-  __my_ssh="$HOME/.ssh"
-#-
+__my_dockerfile="$(pwd)/my-dockerfile"
+__my_workingdir_src="$(pwd)/my-working-directory"
+__my_workingdir_dst="/i-work-here"
+__my_ssh="$HOME/.ssh"
 
-#-vars optional for udocker
-export UDOCKER_WRAPPER="my-udocker"
-export UDOCKER_BUILD_FLAGS="-f $__my_dockerfile"
-export UDOCKER_RUN_FLAGS="-it --rm -v $__my_workingdir_src:$__my_workingdir_dst -v $__my_ssh:/root/.ssh -w /root"
-export UDOCKER_EXEC_FLAGS="-it"
-#-
+export UDOCKER_NAME="my-udocker"
+export UDOCKER_BUILD_OPTS="-f $__my_dockerfile"
+export UDOCKER_RUN_OPTS="-it --rm -v $__my_workingdir_src:$__my_workingdir_dst -v $__my_ssh:~/.ssh -w /root"
+export UDOCKER_EXEC_OPTS="-it"

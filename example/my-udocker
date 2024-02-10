@@ -1,9 +1,10 @@
 #!/bin/bash
 
-# wrapper for udocker that uses 'my-udocker-cfg'
-# alternatively we can 'source my-udocker-cfg' and udocker will recognize defined variables
-function logmsg() { printf "[my-udocker.msg] %s" "$*";     }
-function logerr() { printf "[my-udocker.err] %s" "$*" >&2; }
+# UDocker wrapper that uses custom config
+# Alternatively config can be sourced manualy and UDocker will recognize defined variables
+
+function logmsg() { printf "[my-udocker.msg] $@";     }
+function logerr() { printf "[my-udocker.err] $@" >&2; }
 
 if ! (command -v udocker &> /dev/null) ; then
   logerr "UDocker wasn't installed\n"

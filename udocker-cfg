@@ -1,0 +1,21 @@
+#!/bin/bash
+# This is a template config for UDocker
+
+# Vars required for UDocker
+  # docker image name
+    export UDOCKER_IMAGE="udocker"
+  # docker image tag
+    export UDOCKER_TAG="latest"
+  # docker container name
+    export UDOCKER_CONTAINER="udocker"
+
+# Vars optional for UDocker
+  # name of a wrapper for udocker. used for logging and help
+    export UDOCKER_NAME=
+  # options to pass to 'build' command
+    export UDOCKER_BUILD_OPTS=
+  # options to pass to 'run' command
+    export UDOCKER_RUN_OPTS=
+  # options to pass to 'exec' command
+    export UDOCKER_EXEC_OPTS=
+#

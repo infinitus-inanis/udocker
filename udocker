@@ -1,39 +1,59 @@
 #!/bin/bash
 
-__udocker_name=${UDOCKER_WRAPPER:-udocker}
+__udocker_name=${UDOCKER_NAME:-udocker}
 
 function logmsg() { printf "[$__udocker_name.msg] $@";     }
 function logerr() { printf "[$__udocker_name.err] $@" >&2; }
 
 function __udocker_help() {
-  echo "Usage: $__udocker_name [config-path] [command]"
+  echo "Usage: $__udocker_name [options] <command>"
+  echo ""
+  echo "Simple wrapper for docker that allows to work with single image and single container."
+  echo "UDocker uses environment variables to work. (see: udocker-cfg)"
+  echo "  Required:"
+  echo "    UDOCKER_IMAGE         name of docker image to build. used in conjunction with UDOCKER_TAG"
+  echo "    UDOCKER_TAG           tag of docker container to build. used in conjunction with UDOCKER_IMAGE"
+  echo "    UDOCKER_CONTAINER     name of docker container to run"
+  echo "  Optional:"
+  echo "    UDOCKER_NAME          name of application. used in logs and help. (tip: use this for custom wrappers)"
+  echo "    UDOCKER_BUILD_OPTS    options passed to 'build' command (see: docker build --help)"
+  echo "    UDOCKER_RUN_OPTS      options passed to 'run' command (see: docker run --help)"
+  echo "    UDOCKER_EXEC_OPTS     options passed to 'exec' command (see: docker exec --help)"
+  echo ""
+  echo "Commands: "
+  echo "  help      display this help text"
+  echo "  build     executes 'docker build \$UDOCKER_BUILD_OPTS -t \$UDOCKER_IMAGE:\$UDOCKER_TAG .'"
+  echo "  run       executes 'docker run \$UDOCKER_RUN_OPTS --name \$UDOCKER_CONTAINER \$UDOCKER_IMAGE:\$UDOCKER_TAG \$@'"
+  echo "  exec      executes 'docker exec \$UDOCKER_EXEC_OPTS \$UDOCKER_CONTAINER \$@'"
+  echo "  stop      executes 'docker stop \$UDOCKER_CONTAINER'"
+  echo "  clean     forcefully removes container \$UROCKER_CONTAINER and image \$UDOCKER_IMAGE:\$UDOCKER_TAG"
 }
 
 function __udocker_build() {
-  docker build $UDOCKER_BUILD_FLAGS -t $UDOCKER_IMG:$UDOCKER_TAG .
+  docker build $UDOCKER_BUILD_OPTS -t $UDOCKER_IMAGE:$UDOCKER_TAG .
 }
 
 function __udocker_run() {
-  docker run $UDOCKER_RUN_FLAGS --name $UDOCKER_CTR $UDOCKER_IMG:$UDOCKER_TAG $@
+  docker run $UDOCKER_RUN_OPTS --name $UDOCKER_CONTAINER $UDOCKER_IMAGE:$UDOCKER_TAG $@
 }
 
 function __udocker_exec() {
-  docker exec $UDOCKER_EXEC_FLAGS $UDOCKER_CTR $@
+  docker exec $UDOCKER_EXEC_OPTS $UDOCKER_CONTAINER $@
 }
 
 function __udocker_stop() {
   logmsg "Stopping container: "
-  docker stop $UDOCKER_CTR
+  docker stop $UDOCKER_CONTAINER
 }
 
 function __udocker_clean() {
-  if (docker inspect $UDOCKER_CTR > /dev/null 2>&1); then
-    logmsg "Removing container: $UDOCKER_CTR\n"
-    docker rm -f $UDOCKER_CTR
+  if (docker inspect $UDOCKER_CONTAINER &> /dev/null); then
+    logmsg "Removing container: $UDOCKER_CONTAINER\n"
+    docker rm -f $UDOCKER_CONTAINER
   fi
-  if (docker inspect $UDOCKER_IMG:$UDOCKER_TAG > /dev/null 2>&1); then
-    logmsg "Removing image: $UDOCKER_IMG:$UDOCKER_TAG\n"
-    docker rmi $UDOCKER_IMG:$UDOCKER_TAG
+  if (docker inspect $UDOCKER_IMAGE:$UDOCKER_TAG &> /dev/null); then
+    logmsg "Removing image: $UDOCKER_IMAGE:$UDOCKER_TAG\n"
+    docker rmi $UDOCKER_IMAGE:$UDOCKER_TAG
   fi
 }
 
@@ -47,33 +67,38 @@ function __udocker_cmd_process() {
     stop)   { __udocker_stop;         };;
     clean)  { __udocker_clean;        };;
     *) {
-      logerr "Unknown command: $cmd\n"
-      logerr "Try: $__udocker_name -h|--help|help\n"
+      logerr "Unknown command: '$cmd' (see: udocker help)\n"
       return 1;
     };;
   esac
 }
 
 set -e
-if [[ $# -eq 0 || "$1" == "-h" || "$1" == "--help" || "$1" == "help" ]]; then
+
+if ! (command -v docker &> /dev/null); then
+  logerr "Docker wasn't installed\n"
+  exit 1
+fi
+
+if [[ $# -eq 0 || "$1" == "help" ]]; then
   __udocker_help
   exit 1
 fi
 
-if [ -z "$UDOCKER_IMG" ]; then
-  logerr "Couldn't proceed. UDOCKER_IMG variable is required\n"
+if [ -z "$UDOCKER_IMAGE" ]; then
+  logerr "UDOCKER_IMAGE was not found in current environment (see: udocker help)\n"
   exit 1
 fi
 if [ -z "$UDOCKER_TAG" ]; then
-  logerr "Couldn't proceed. UDOCKER_TAG variable is required\n"
+  logerr "UDOCKER_TAG was not found in current environment (see: udocker help)\n"
   exit 1
 fi
-if [ -z "$UDOCKER_CTR" ]; then
-  logerr "Couldn't proceed. UDOCKER_CTR variable is required\n"
+if [ -z "$UDOCKER_CONTAINER" ]; then
+  logerr "UDOCKER_CONTAINER was not found in current environment (see: udocker help)\n"
   exit 1
 fi
 
-logmsg "Using image: $UDOCKER_IMG:$UDOCKER_TAG\n"
-logmsg "Using container: $UDOCKER_CTR\n"
+logmsg "Using image: $UDOCKER_IMAGE:$UDOCKER_TAG\n"
+logmsg "Using container: $UDOCKER_CONTAINER\n"
 
 __udocker_cmd_process "$@"
