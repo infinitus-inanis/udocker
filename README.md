@@ -36,7 +36,9 @@
     PREFIX  - default is '/usr'
   
   Example with defaults:
-    bash -c "source <(curl -s https://raw.githubusercontent.com/infinitus-inanis/udocker/main/.scripts/obtain-udocker)"
+    bash -c "\
+      source <(curl -s https://raw.githubusercontent.com/infinitus-inanis/udocker/main/.scripts/obtain-udocker)\
+    "
 
   Example with custom PREFIX:
     bash -c "\
