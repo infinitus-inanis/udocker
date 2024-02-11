@@ -6,17 +6,44 @@
 
 ## Installation
 
-```
-Supported 'make' variables:
-  DESTDIR       - default is ''
-  PREFIX        - default is '/usr'
-  INSTALL_DIR   - default is '$(DESTDIR)$(PREFIX)/bin'    
+**Note**: installing may require root privileges
 
-Supported 'make' targets:
-  install           - simply copy script into INSTALL_DIR
-  install-symlink   - create symlink to script into INSTALL_DIR
-  uninstall         - remove installed script from INSTALL_DIR
-```
+- Using make:
+
+  ```
+  Supported variables:
+    DESTDIR       - default is ''
+    PREFIX        - default is '/usr'
+    INSTALL_DIR   - default is '$(DESTDIR)$(PREFIX)/bin'    
+
+  Supported targets:
+    install           - simply copy script into INSTALL_DIR
+    install-symlink   - create symlink to script into INSTALL_DIR
+    uninstall         - remove installed script from INSTALL_DIR
+
+  Example with defaults:
+    make install
+  
+  Example with custom PREFIX:
+    make PREFIX="$HOME/.local" install
+  ```
+
+- Using curl and '.scripts/obtain-udocker':
+
+  ```
+  Suppored variables:
+    DESTDIR - default is ''
+    PREFIX  - default is '/usr'
+  
+  Example with defaults:
+    bash -c "source <(curl -s https://raw.githubusercontent.com/infinitus-inanis/udocker/main/.scripts/obtain-udocker)"
+
+  Example with custom PREFIX:
+    bash -c "\
+      export PREFIX="$HOME/.local" &&\
+      source <(curl -s https://raw.githubusercontent.com/infinitus-inanis/udocker/main/.scripts/obtain-udocker)\
+    "
+  ```
 
 ## Usage
 
