@@ -1,0 +1,15 @@
+#!/bin/bash
+set -e
+echo "==== Obtain UDocker ===="
+exe=udocker
+url=https://raw.githubusercontent.com/infinitus-inanis/udocker/main/$exe
+pushd /tmp > /dev/null
+  curl $url -o $exe
+  install_dir=${DESTDIR:-}${PREFIX:-/usr}/bin
+  install_path=$install_dir/$exe
+  install -d $install_dir
+  install -m 755 $exe $install_dir
+  echo "== Installed at: $install_path"
+  rm -f $exe
+popd > /dev/null
+echo "== Done =="
