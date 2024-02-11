@@ -20,7 +20,7 @@ Supported 'make' targets:
 
 ## Usage
 
-**UDocker** uses environment variables to work. They can be defined manually or by sourcing a script before execution (see: `udocker-cfg` template or `example`):
+**UDocker** uses environment variables to work. They can be defined manually or by sourcing a script before execution (see: `udocker-cfg` template or `.example`):
 
 ```
 Required:
